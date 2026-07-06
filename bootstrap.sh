@@ -4,6 +4,12 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+if [[ "$(uname -m)" == "arm64" ]]; then
+  HOMEBREW_PREFIX="/opt/homebrew"
+else
+  HOMEBREW_PREFIX="/usr/local"
+fi
+HOMEBREW_UNINSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh"
 
 echo "==> Step 1: Determinate Nix"
 if command -v nix >/dev/null 2>&1; then
@@ -20,7 +26,19 @@ echo "==> Step 2: symlink this repo to ~/.dotfiles"
 # has to exist before the first switch or the build will fail to find them.
 ln -sfn "$DIR" ~/.dotfiles
 
-echo "==> Step 3: first darwin-rebuild switch (pinned to nix-darwin-26.05)"
+echo "==> Step 3: remove unmanaged Homebrew"
+if [[ -e "$HOMEBREW_PREFIX/Library/Homebrew" || -e "$HOMEBREW_PREFIX/bin/brew" ]]; then
+  echo "    found existing Homebrew at $HOMEBREW_PREFIX"
+  echo "    uninstalling it with Homebrew's official uninstall script"
+  sudo -v
+  NONINTERACTIVE=1 /bin/bash -c "$(
+    curl --proto '=https' --tlsv1.2 -fsSL "$HOMEBREW_UNINSTALL_URL"
+  )" -- --path="$HOMEBREW_PREFIX" --force
+else
+  echo "    no existing Homebrew installation found at $HOMEBREW_PREFIX, skipping"
+fi
+
+echo "==> Step 4: first darwin-rebuild switch (pinned to nix-darwin-26.05)"
 # darwin-rebuild doesn't exist yet on a fresh machine, so run it straight
 # from the flake this once. After this, rebuild.sh works normally.
 # This fetches the darwin-rebuild tool from the nix-darwin-26.05 release branch,

@@ -23,7 +23,8 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.kunchen = import ./home.nix;
+          home-manager.backupFileExtension = "hm-backup";
+          home-manager.users.leebarry = import ./home.nix;
         }
       ];
     };

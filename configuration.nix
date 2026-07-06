@@ -7,9 +7,9 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.hostPlatform = "aarch64-darwin"; # use x86_64-darwin for Intel CPU
 
-  system.primaryUser = "kunchen";
-  users.users.kunchen = {
-    home = "/Users/kunchen";
+  system.primaryUser = "leebarry";
+  users.users.leebarry = {
+    home = "/Users/leebarry";
   };
   system.stateVersion = 6;
   system.defaults = {
@@ -27,7 +27,7 @@
   };
   nix-homebrew = {
     enable = true;
-    user = "kunchen";
+    user = "leebarry";
   };
   homebrew = {
     enable = true;
@@ -40,6 +40,10 @@
     casks = [
       "wezterm"
       "claude-code"
+      "codex"
+      # cursor-agent is NOT installed via Homebrew: the cask ships an unsigned
+      # binary that fails to load. It's installed from Cursor's official script
+      # in home.nix instead (installs to ~/.local/bin).
     ];
   };
 }

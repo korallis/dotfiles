@@ -39,13 +39,16 @@ Before you run it: open the config files and change the values listed in "Make i
 ./bootstrap.sh
 ```
 
-`bootstrap.sh` does three things, in order:
+`bootstrap.sh` does four things, in order:
 
 1. Installs Determinate Nix, if it isn't already installed.
 2. Symlinks this repo to `~/.dotfiles`.
    This has to happen before the first build, because `home.nix` points at config files through `~/.dotfiles`.
-3. Runs the first `darwin-rebuild switch`.
+3. Removes any existing unmanaged Homebrew installation from the platform Homebrew prefix using Homebrew's official uninstall script.
+   This clears the way for `nix-homebrew` to reinstall Homebrew from the Nix config.
+4. Runs the first `darwin-rebuild switch`.
    It fetches the `darwin-rebuild` tool from the nix-darwin 26.05 release branch, then applies this repo's locked flake config.
+   Existing files that Home Manager needs to replace are moved aside with the `.hm-backup` suffix.
 
 After that, `darwin-rebuild` exists and you're on the normal workflow below.
 
@@ -95,7 +98,7 @@ If you don't use it, just remove it from `brews` in your copy.
 
 - `home/AGENTS.md` is my personal agent policy, and `home.nix` installs it for Claude, Codex, and opencode.
   If you clone this repo, you'd silently inherit my agent instructions - edit or delete `home/AGENTS.md` if you don't want that.
-- The `cc` and `co` shell aliases in `home.nix` are high-agency shortcuts: `claude --dangerously-skip-permissions` and `codex --full-auto`.
+- The `cc` and `co` shell aliases in `home.nix` are high-agency shortcuts: `claude --dangerously-skip-permissions` and `codex --yolo --search`.
   They're convenient for me, but know what they do before you use them.
 
 ## Repo tour
