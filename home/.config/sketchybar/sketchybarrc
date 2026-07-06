@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# ============================================================================
+#  SketchyBar — floating Catppuccin Mocha bar for the AeroSpace setup
+#  Structure: bar -> defaults -> items (sourced) -> update
+#  Reload:  sketchybar --reload      Iterate:  sketchybar --hotload on
+# ============================================================================
+
+CONFIG_DIR="$HOME/.config/sketchybar"
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+ITEM_DIR="$CONFIG_DIR/items"
+export CONFIG_DIR PLUGIN_DIR ITEM_DIR
+
+source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/icons.sh"
+
+FONT="Hack Nerd Font"
+APP_FONT="sketchybar-app-font"
+export FONT APP_FONT
+
+# --- Bar: floating, blurred, rounded ----------------------------------------
+sketchybar --bar \
+    height=36 \
+    position=top \
+    display=main \
+    margin=10 \
+    y_offset=0 \
+    corner_radius=12 \
+    border_width=2 \
+    border_color="$BAR_BORDER" \
+    color="$BAR_COLOR" \
+    padding_left=8 \
+    padding_right=8 \
+    blur_radius=30 \
+    shadow=on \
+    sticky=on \
+    topmost=off \
+    notch_width=0
+
+# --- Defaults inherited by every item ---------------------------------------
+sketchybar --default \
+    updates=when_shown \
+    icon.font="$FONT:Bold:16.0" \
+    icon.color="$TEXT" \
+    icon.padding_left=8 \
+    icon.padding_right=4 \
+    label.font="$FONT:Bold:13.0" \
+    label.color="$TEXT" \
+    label.padding_left=4 \
+    label.padding_right=8 \
+    padding_left=4 \
+    padding_right=4 \
+    background.corner_radius=9 \
+    background.height=26 \
+    background.color="$TRANSPARENT" \
+    background.border_width=0 \
+    background.border_color="$ITEM_BORDER" \
+    popup.background.border_width=2 \
+    popup.background.corner_radius=10 \
+    popup.background.border_color="$POPUP_BORDER" \
+    popup.background.color="$POPUP_BG" \
+    popup.background.shadow.drawing=on \
+    popup.blur_radius=30 \
+    popup.y_offset=6
+
+# --- Items (left -> center -> right) ----------------------------------------
+source "$ITEM_DIR/apple.sh"
+source "$ITEM_DIR/spaces.sh"
+source "$ITEM_DIR/front_app.sh"
+source "$ITEM_DIR/cheatsheet.sh"
+
+source "$ITEM_DIR/calendar.sh"
+
+source "$ITEM_DIR/battery.sh"
+source "$ITEM_DIR/volume.sh"
+source "$ITEM_DIR/wifi.sh"
+source "$ITEM_DIR/memory.sh"
+source "$ITEM_DIR/cpu.sh"
+
+# --- Finalise ---------------------------------------------------------------
+sketchybar --hotload on
+sketchybar --update
+
+echo "sketchybar configuration loaded."

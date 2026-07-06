@@ -19,6 +19,7 @@ in
     nodejs_24 # runtime for firstmate AXI CLIs (gh-axi, chrome-devtools-axi, lavish-axi)
     gh        # GitHub CLI; gh-axi wraps it and firstmate's bootstrap requires it
     tmux      # firstmate's reference backend; required by its e2e test suite (.no-mistakes.yaml test step)
+    shellcheck # firstmate's CI "Lint shell scripts" job runs this on bin/*.sh; keep local lint == CI
     # the font everything renders in
     nerd-fonts.hack
   ];
@@ -107,6 +108,21 @@ in
     fi
   '';
 
+  # Start the bar + border daemons as login services. The Homebrew module
+  # installs `sketchybar`/`borders` but never runs `brew services start`, so do
+  # it here (idempotent - a no-op when already loaded). AeroSpace registers its
+  # own login agent via `start-at-login = true` in its config, so it isn't here.
+  # Guarded on the binaries so a switch before Homebrew has installed them still
+  # succeeds. Runs after firstmateTools purely for ordering determinism.
+  home.activation.desktopRiceServices = lib.hm.dag.entryAfter [ "firstmateTools" ] ''
+    for svc in borders sketchybar; do
+      if [ -x "/opt/homebrew/bin/$svc" ]; then
+        verboseEcho "desktop-rice: ensuring $svc service is started"
+        run /opt/homebrew/bin/brew services start "$svc" || true
+      fi
+    done
+  '';
+
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;      # ghost text from history
@@ -160,6 +176,18 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/nvim";
   home.file.".config/herdr".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr";
+
+  # Desktop rice: Hyprland-style tiling. AeroSpace (WM) + JankyBorders (borders)
+  # + SketchyBar (bar). Edit-in-place like the others; the WM/bar/border tools
+  # themselves are installed via the Homebrew module in configuration.nix.
+  home.file.".config/aerospace".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/aerospace";
+  home.file.".config/sketchybar".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/sketchybar";
+  home.file.".config/borders".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/borders";
+  home.file.".config/desktop-rice".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/desktop-rice";
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.claude/settings.json";
 

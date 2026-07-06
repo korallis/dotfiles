@@ -1,0 +1,194 @@
+# ============================================================================
+#  AeroSpace — Hyprland-style tiling on macOS
+#  Main modifier: `alt` = the OPTION (⌥) key — on a Mac keyboard "alt" and
+#  "option" are the same physical key. It's your Hyprland SUPER; Cmd is left to
+#  macOS. (AeroSpace's modifier keyword is literally `alt`; it fires on either
+#  Option key — left-Option-only isn't possible without Karabiner.)
+#  Palette/companions: JankyBorders (glow) + SketchyBar (top bar)
+#  Docs: https://nikitabobko.github.io/AeroSpace/guide
+# ============================================================================
+
+config-version = 2
+
+# Start AeroSpace at login and hot-reload this file on save.
+start-at-login = true
+auto-reload-config = true
+
+# --- Startup ----------------------------------------------------------------
+# SketchyBar + JankyBorders are owned by `brew services` (independent launchd
+# agents, started at login), so AeroSpace does NOT launch them here — that would
+# double-launch and the second instance exits with an error.
+after-startup-command = []
+
+# --- i3-like tree normalization ---------------------------------------------
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'   # wide monitor -> horizontal split
+
+# Neutralise macOS cmd-h "hide" so windows never vanish from the tree.
+automatically-unhide-macos-hidden-apps = true
+
+# Keep these workspaces alive even when empty (so the bar always shows 1-9).
+persistent-workspaces = ["1","2","3","4","5","6","7","8","9"]
+
+# Mouse lazily follows focus across monitors / windows.
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+key-mapping.preset = 'qwerty'
+
+# --- Notify SketchyBar on every workspace switch -----------------------------
+# (Top-level key — must precede any [table] header in TOML.)
+exec-on-workspace-change = ['/bin/bash', '-c',
+    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE'
+]
+
+# --- Gaps: Hyprland-ish breathing room + top gap for SketchyBar --------------
+[gaps]
+    inner.horizontal = 8
+    inner.vertical   = 8
+    outer.left       = 10
+    outer.right      = 10
+    outer.bottom     = 10
+    outer.top        = 54          # clears the floating bar (10 margin + 36 height + slack)
+
+# ============================================================================
+#  MAIN MODE — keybindings
+# ============================================================================
+[mode.main.binding]
+
+    # --- Launchers (Hyprland: mainMod Q = terminal, E = files) --------------
+    alt-enter = 'exec-and-forget open -na WezTerm'
+    alt-q     = 'exec-and-forget open -na WezTerm'
+    alt-b     = 'exec-and-forget open -a "Google Chrome"'
+    alt-e     = 'exec-and-forget open -a Finder'
+
+    # --- Window / focus ------------------------------------------------------
+    alt-c         = 'close'                      # kill focused window
+    alt-f         = 'fullscreen'                 # toggle fullscreen
+    alt-v         = 'layout floating tiling'     # toggle floating
+    alt-t         = 'layout tiles horizontal vertical'   # tiles + toggle split axis
+    alt-comma     = 'layout accordion horizontal vertical'
+    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+    # Focus (vim keys + arrows), wrapping at workspace edges
+    alt-h = 'focus --boundaries-action wrap-around-the-workspace left'
+    alt-j = 'focus --boundaries-action wrap-around-the-workspace down'
+    alt-k = 'focus --boundaries-action wrap-around-the-workspace up'
+    alt-l = 'focus --boundaries-action wrap-around-the-workspace right'
+    alt-left  = 'focus --boundaries-action wrap-around-the-workspace left'
+    alt-down  = 'focus --boundaries-action wrap-around-the-workspace down'
+    alt-up    = 'focus --boundaries-action wrap-around-the-workspace up'
+    alt-right = 'focus --boundaries-action wrap-around-the-workspace right'
+
+    # Move focused window within the tree
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+    alt-shift-left  = 'move left'
+    alt-shift-down  = 'move down'
+    alt-shift-up    = 'move up'
+    alt-shift-right = 'move right'
+
+    # Resize
+    alt-minus = 'resize smart -50'
+    alt-equal = 'resize smart +50'
+
+    # --- Workspaces (mainMod 1-9) -------------------------------------------
+    alt-1 = 'workspace 1'
+    alt-2 = 'workspace 2'
+    alt-3 = 'workspace 3'
+    alt-4 = 'workspace 4'
+    alt-5 = 'workspace 5'
+    alt-6 = 'workspace 6'
+    alt-7 = 'workspace 7'
+    alt-8 = 'workspace 8'
+    alt-9 = 'workspace 9'
+    alt-tab = 'workspace-back-and-forth'
+
+    # Move window to workspace + follow it (mainMod+shift 1-9)
+    alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
+    alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
+    alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
+    alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
+    alt-shift-5 = 'move-node-to-workspace 5 --focus-follows-window'
+    alt-shift-6 = 'move-node-to-workspace 6 --focus-follows-window'
+    alt-shift-7 = 'move-node-to-workspace 7 --focus-follows-window'
+    alt-shift-8 = 'move-node-to-workspace 8 --focus-follows-window'
+    alt-shift-9 = 'move-node-to-workspace 9 --focus-follows-window'
+
+    # --- Enter service / resize sub-modes ------------------------------------
+    alt-shift-semicolon = 'mode service'
+    alt-r               = 'mode resize'
+
+# --- SERVICE mode (reload, reset tree, join windows) ------------------------
+[mode.service.binding]
+    esc       = ['reload-config', 'mode main']
+    r         = ['flatten-workspace-tree', 'mode main']    # reset the layout tree
+    f         = ['layout floating tiling', 'mode main']
+    backspace = ['close-all-windows-but-current', 'mode main']
+
+    alt-shift-h = ['join-with left', 'mode main']
+    alt-shift-j = ['join-with down', 'mode main']
+    alt-shift-k = ['join-with up', 'mode main']
+    alt-shift-l = ['join-with right', 'mode main']
+
+# --- RESIZE mode (hold, tap to size, esc/enter to exit) ---------------------
+[mode.resize.binding]
+    h     = 'resize width -50'
+    l     = 'resize width +50'
+    j     = 'resize height +50'
+    k     = 'resize height -50'
+    minus = 'resize smart -50'
+    equal = 'resize smart +50'
+    enter = 'mode main'
+    esc   = 'mode main'
+
+# ============================================================================
+#  Window rules — auto-place apps onto semantic workspaces
+#  1:term  2:web  3:code  4:chat
+# ============================================================================
+[[on-window-detected]]
+    if.app-id = 'com.github.wez.wezterm'
+    run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+    if.app-id = 'com.google.Chrome'
+    run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.Safari'
+    run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+    if.app-id = 'com.microsoft.VSCode'
+    run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+    if.app-id = 'com.todesktop.230313mzl4w4u92'   # Cursor
+    run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+    if.app-id = 'com.tinyspeck.slackmacgap'
+    run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+    if.app-id = 'com.hnc.Discord'
+    run = 'move-node-to-workspace 4'
+
+# Float common transient / settings windows
+[[on-window-detected]]
+    if.app-id = 'com.apple.systempreferences'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.finder'
+    if.window-title-regex-substring = 'Info|Copy|Move'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.ActivityMonitor'
+    run = 'layout floating'

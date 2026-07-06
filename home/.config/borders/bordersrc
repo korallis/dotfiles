@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# JankyBorders — glowing window borders for the AeroSpace tiling setup.
+# Palette: Catppuccin Mocha. Focused window gets a mauve→blue diagonal
+# gradient (the "streamer glow"); unfocused windows a dim slate ring.
+#
+# Reload after editing:  ~/.config/borders/bordersrc   (updates the live process)
+# Colour format: 0xAARRGGBB  (AA = alpha, then RGB)
+
+options=(
+	style=round
+	width=6.0
+	hidpi=on
+	order=above
+
+	# Focused: diagonal mauve -> blue gradient
+	"active_color=gradient(top_left=0xffcba6f7,bottom_right=0xff89b4fa)"
+
+	# Unfocused: muted Catppuccin surface1
+	inactive_color=0xff45475a
+)
+
+borders "${options[@]}"
