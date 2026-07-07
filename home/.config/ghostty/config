@@ -1,0 +1,22 @@
+# Ghostty config, managed in this dotfiles repo and symlinked to
+# ~/.config/ghostty via home.nix (edit-in-place, same pattern as wezterm).
+#
+# Mirrors home/.config/wezterm/wezterm.lua so both terminals look identical and,
+# crucially, launch the shell the same way: Ghostty runs the default shell as a
+# LOGIN shell by default and auto-injects shell integration, so it sources the
+# same dotfiles as wezterm (.zshenv puts ~/.local/bin on PATH before .zshrc even
+# runs). That is what makes cursor-agent and the firstmate CLIs resolvable.
+
+# Appearance - matched to wezterm.lua
+theme = Rose Pine Moon
+font-family = Hack Nerd Font
+font-size = 15
+background-opacity = 0.8
+background-blur = 50
+
+# wezterm window_decorations = "RESIZE": no title bar, still resizable.
+macos-titlebar-style = hidden
+
+# Explicit for clarity; "detect" is the default and picks up zsh integration,
+# which relies on the login shell that sources ~/.zshenv and ~/.zshrc.
+shell-integration = detect
